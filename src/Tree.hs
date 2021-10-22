@@ -1,4 +1,4 @@
-{-# LANGUAGE PolyKinds, TypeApplications, DeriveFunctor #-}
+{-# LANGUAGE PolyKinds, TypeApplications, DeriveFunctor, OverloadedStrings #-}
 
 module Tree
   ( TreeF(..)
@@ -6,7 +6,10 @@ module Tree
   , tips
   , totalBranchLength
   , maxDepth
+  , newick
   ) where
+
+import Data.Text.Prettyprint.Doc
 
 import Schema
 
@@ -25,6 +28,14 @@ tips (LeafF x) = [x]
 totalBranchLength :: Num b => Algebra (TreeF a b c) b
 totalBranchLength (LeafF _) = 0
 totalBranchLength (NodeF _ kids) = sum (map fst kids ++ map snd kids)
+
+-- like tuple but doesn't create space
+tuple' :: [Doc ann] -> Doc ann
+tuple' = encloseSep "(" ")" ","
+
+newick :: (Pretty a, Pretty b, Pretty c) => Algebra (TreeF a b c) (Doc ann)
+newick (LeafF x) = pretty x
+newick (NodeF x kids) = (tuple' [x <> ":" <> pretty b | (b, x) <- kids]) <> pretty x
 
 maxDepth :: (Num b, Ord b) => Algebra (TreeF a b c) b
 maxDepth (LeafF _) = 0
