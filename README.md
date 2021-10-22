@@ -1,4 +1,4 @@
 # phylocurse
 
-This is an expermintal package for exploring phylogenetic algorithms using
+This is an experimental package for exploring phylogenetic algorithms using
 recursion schemes.
