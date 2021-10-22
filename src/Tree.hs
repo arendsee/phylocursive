@@ -7,10 +7,10 @@ module Tree
   , totalBranchLength
   , maxDepth
   , newick
+  , binaryUltrametric
   ) where
 
 import Data.Text.Prettyprint.Doc
-
 import Schema
 
 data TreeF a b c r = NodeF a [(b, r)] | LeafF c
@@ -40,3 +40,10 @@ newick (NodeF x kids) = (tuple' [x <> ":" <> pretty b | (b, x) <- kids]) <> pret
 maxDepth :: (Num b, Ord b) => Algebra (TreeF a b c) b
 maxDepth (LeafF _) = 0
 maxDepth (NodeF _ kids) = maximum [b + x | (b, x) <- kids]
+
+binaryUltrametric :: Coalgebra (TreeF String Int String) [String]
+binaryUltrametric [] = NodeF "" []
+binaryUltrametric [x] = LeafF x
+binaryUltrametric xs =
+  let (lhs, rhs) = splitAt (div (length xs) 2) xs
+  in NodeF "" [(1, lhs), (1, rhs)]

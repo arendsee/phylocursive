@@ -21,3 +21,5 @@ someFunc = do
   putStrLn . show $ cata T.maxDepth T.treeC
   putDoc $ cata T.newick T.treeC <> ";"
   putStrLn ""
+  putDoc $ cata T.newick (ana T.binaryUltrametric ["A", "B", "C", "D", "E"])
+  putStrLn ""
