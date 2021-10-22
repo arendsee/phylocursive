@@ -1,0 +1,48 @@
+name:                phylocurse
+version:             0.1.0
+github:              "githubuser/phylocurse"
+license:             BSD3
+author:              "Zebulun Arendsee"
+maintainer:          "zbwrnz@gmail.com"
+copyright:           "2021 Zebulun Arendsee"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            A phylogenetics library based on recursion schemes
+# category:            Science
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/githubuser/phylocurse#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+
+executables:
+  phylocurse-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - phylocurse
+
+tests:
+  phylocurse-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - phylocurse
