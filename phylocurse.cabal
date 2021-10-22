@@ -25,7 +25,10 @@ source-repository head
 
 library
   exposed-modules:
+      Expr
       Lib
+      Schema
+      Tree
   other-modules:
       Paths_phylocurse
   hs-source-dirs:
