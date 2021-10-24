@@ -41,7 +41,7 @@ maxDepth :: (Num b, Ord b) => Algebra (TreeF a b c) b
 maxDepth (LeafF _) = 0
 maxDepth (NodeF _ kids) = maximum [b + x | (b, x) <- kids]
 
-binaryUltrametric :: Coalgebra (TreeF String Int String) [String]
+binaryUltrametric :: CoAlgebra (TreeF String Int String) [String]
 binaryUltrametric [] = NodeF "" []
 binaryUltrametric [x] = LeafF x
 binaryUltrametric xs =
