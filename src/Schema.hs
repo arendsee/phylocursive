@@ -54,6 +54,17 @@ histo h = worker >>> attribute where
   worker = out >>> fmap worker >>> (h &&& id) >>> mkAttr
   mkAttr (a, b) = Attr a b
 
+data CoAttr f a
+  = Automatic a
+  | Manual (f (CoAttr f a))
+
+type CVCoAlgebra f a = a -> f (CoAttr f a)
+
+futu :: Functor f => CVCoAlgebra f a -> a -> Term f
+futu fn = In <<< fmap worker <<< fn where
+  worker (Automatic a) = futu fn a
+  worker (Manual x) = In (fmap worker x) 
+
 
 para' :: Functor f => RAlgebra' f a -> Term f -> a
 para' fn t = out t & fmap (para' fn) & fn t
