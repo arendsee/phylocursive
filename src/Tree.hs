@@ -13,10 +13,14 @@ module Tree
   , binaryUltrametric
   -- * para examples
   , maxNodeChildren
+  -- * futu examples
+  , Seed(..)
+  , randTree
   ) where
 
 import Data.Text.Prettyprint.Doc
 import Schema
+import qualified System.Random as Random
 
 data TreeF a b c r = NodeF a [(b, r)] | LeafF c
   deriving(Show, Ord, Eq, Functor)
@@ -106,3 +110,26 @@ isNode' = not . isLeaf'
 maxNodeChildren' :: Tree a b c -> Int
 maxNodeChildren' (Node _ kids) = maximum (length (filter (isNode' . snd) kids) : map (maxNodeChildren' . snd) kids)
 maxNodeChildren' _ = 0
+
+
+-- futu
+
+-- problem: grow a random tree with leaf probability increasing with depth
+-- p = e^n / (1 + e^n)
+
+data Seed = Seed
+  { depth :: Int
+  , rng :: Random.StdGen
+  }
+
+randTree :: Seed -> Term (TreeF String Int String)
+randTree = futu go where
+  go (Seed depth rng)
+    -- make a leaf
+    | r < (3 ** (fromIntegral depth)) / (1 + 3 ** (fromIntegral depth)) = LeafF "."
+    -- branch
+    | otherwise =
+        let (rhs, lhs) = Random.split rng 
+        in NodeF "*" [(1, Automatic (Seed (depth + 1) lhs)), (1, Automatic (Seed (depth + 1) rhs))]
+    where
+    (r, _) = Random.randomR (0 :: Double, 1) rng

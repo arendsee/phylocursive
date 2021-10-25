@@ -14,9 +14,11 @@ import qualified Tree as T
 
 import Data.Text.Prettyprint.Doc
 import Data.Text.Prettyprint.Doc.Render.Text
+import qualified System.Random as Random
 
 someFunc :: IO ()
 someFunc = do
+  rnd <- Random.newStdGen
   putStrLn . show $ cata E.identNames E.call
   putStrLn . show $ T.tips T.treeC 
   putStrLn . show $ T.totalBranchLength T.treeC 
@@ -36,3 +38,4 @@ someFunc = do
   putStrLn ""
   putDoc . L.prettyListF . L.collatz $ 10000
   putStrLn ""
+  putDoc . T.newick . T.randTree $ T.Seed (-5) rnd

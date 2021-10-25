@@ -21,6 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
   - base >= 4.7 && < 5
+  - random
   - prettyprinter >=1.2.0.1 && <1.8
 
 library:
