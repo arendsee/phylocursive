@@ -1,6 +1,6 @@
-name:                phylocurse
+name:                phylocursive
 version:             0.1.0
-github:              "githubuser/phylocurse"
+github:              "githubuser/phylocursive"
 license:             BSD3
 author:              "Zebulun Arendsee"
 maintainer:          "zbwrnz@gmail.com"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/phylocurse#readme>
+description:         Please see the README on GitHub at <https://github.com/githubuser/phylocursive#readme>
 
 dependencies:
   - base >= 4.7 && < 5
@@ -27,7 +27,7 @@ library:
   source-dirs: src
 
 executables:
-  phylocurse-exe:
+  phylocursive-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -35,10 +35,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - phylocurse
+    - phylocursive
 
 tests:
-  phylocurse-test:
+  phylocursive-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -46,4 +46,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - phylocurse
+    - phylocursive

@@ -7,6 +7,8 @@ module Lib
 import Schema
 import Expr ()
 import Tree ()
+import List ()
+import qualified List as L
 import qualified Expr as E
 import qualified Tree as T
 
@@ -24,3 +26,7 @@ someFunc = do
   putDoc $ cata T.newick (ana T.binaryUltrametric ["A", "B", "C", "D", "E"])
   putStrLn ""
   putStrLn . show $ para' T.maxNodeChildren T.treeD
+  putStrLn . show $ cata L.sumList (L.toListF [1,2,3,4])
+  putStrLn . show $ L.sumList' (L.toList [1,2,3,4])
+  putStrLn . show $ para' L.runs (L.toListF [1,2,2,2,3,4])
+  putStrLn . show $ L.runs' (L.toList [1,2,2,2,3,4])
