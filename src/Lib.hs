@@ -23,3 +23,4 @@ someFunc = do
   putStrLn ""
   putDoc $ cata T.newick (ana T.binaryUltrametric ["A", "B", "C", "D", "E"])
   putStrLn ""
+  putStrLn . show $ para' T.maxNodeChildren T.treeD

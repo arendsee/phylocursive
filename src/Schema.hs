@@ -5,6 +5,7 @@ module Schema
  , Algebra, cata
  , CoAlgebra, ana
  , RAlgebra, para
+ , RAlgebra', para'
  , RCoAlgebra, apo
  , Attr(..), CVAlgebra, histo
  , CoAttr(..), CVCoAlgebra, futu
@@ -38,7 +39,14 @@ type RAlgebra f a = f (Term f, a) -> a
 para :: Functor f => RAlgebra f a -> Term f -> a
 para fn = out >>> fmap (id &&& para fn) >>> fn
 
--- apomorphism (co-anamorphism)
+-- and alternative encoding of para sans the tuple
+-- it does simlify the RAlgebra, but it hides the symmetry with the apomorphism 
+type RAlgebra' f a = Term f -> f a -> a
+para' :: Functor f => RAlgebra' f a -> Term f -> a
+para' fn t = out t & fmap (para' fn) & fn t
+
+
+-- apomorphism (co-paramorphism)
 type RCoAlgebra f a = a -> f (Either (Term f) a)
 apo :: Functor f => RCoAlgebra f a -> a -> Term f
 apo f = In <<< fmap (id ||| apo f) <<< f
