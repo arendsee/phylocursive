@@ -85,6 +85,33 @@ binaryUltrametric = ana go where
     in NodeF "" [(1, lhs), (1, rhs)]
 
 
+-- problem: grow a random tree with leaf probability increasing with depth)
+
+data Seed = Seed
+  { depth :: Double
+  , rng :: Random.StdGen
+  }
+
+randTree :: Seed -> Term (TreeF String Int String)
+randTree = ana go where
+  go :: CoAlgebra (TreeF String Int String) Seed
+  go (Seed depth rng)
+    -- make a leaf
+    | p < depth / (depth + 3) = LeafF "."
+    -- branch
+    | otherwise = NodeF "*" [(1, l), (1, r)]
+    where
+    -- generate a leaf probability
+    (p, _) = Random.randomR (0 :: Double, 1) rng
+
+    -- create right and left hand random number generators
+    (rhs, lhs) = Random.split rng 
+
+    -- generate right and left trees and incremented depth
+    r = Seed (depth + 1) lhs
+    l = Seed (depth + 1) rhs
+
+
 -- para -----------------------------------------------------------------------
 
 -- find the maximum number of non-leaf children of a single node
@@ -114,28 +141,21 @@ maxNodeChildren' _ = 0
 
 -- futu
 
--- problem: grow a random tree with leaf probability increasing with depth)
-
-data Seed = Seed
-  { depth :: Double
-  , rng :: Random.StdGen
-  }
-
-randTree :: Seed -> Term (TreeF String Int String)
-randTree = futu go where
-  go :: CVCoAlgebra (TreeF String Int String) Seed
-  go (Seed depth rng)
-    -- make a leaf
-    | p < depth / (depth + 3) = LeafF "."
-    -- branch
-    | otherwise = NodeF "*" [(1, l), (1, r)]
-    where
-    -- generate a leaf probability
-    (p, _) = Random.randomR (0 :: Double, 1) rng
-
-    -- create right and left hand random number generators
-    (rhs, lhs) = Random.split rng 
-
-    -- generate right and left trees and incremented depth
-    r = Automatic (Seed (depth + 1) lhs)
-    l = Automatic (Seed (depth + 1) rhs)
+-- randTree :: Seed -> Term (TreeF String Int String)
+-- randTree = futu go where
+--   go :: CVCoAlgebra (TreeF String Int String) Seed
+--   go (Seed depth rng)
+--     -- make a leaf
+--     | p < depth / (depth + 3) = LeafF "."
+--     -- branch
+--     | otherwise = NodeF "*" [(1, l), (1, r)]
+--     where
+--     -- generate a leaf probability
+--     (p, _) = Random.randomR (0 :: Double, 1) rng
+--
+--     -- create right and left hand random number generators
+--     (rhs, lhs) = Random.split rng
+--
+--     -- generate right and left trees and incremented depth
+--     r = Automatic (Seed (depth + 1) lhs)
+--     l = Automatic (Seed (depth + 1) rhs)
