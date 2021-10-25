@@ -3,15 +3,18 @@
 module List
   ( ListF
   , toListF
+  , prettyListF
   , List
   , toList
   , sumList
   , sumList'
   , runs
   , runs'
+  , evens
   ) where
 
 import Schema
+import Data.Text.Prettyprint.Doc
 
 data ListF a r = NilF | ConsF a r
   deriving (Show, Ord, Eq, Functor)
@@ -26,26 +29,34 @@ toList :: [a] -> List a
 toList [] = Nil
 toList (x:xs) = Cons x (toList xs)
 
+prettyListF :: Pretty a => Term (ListF a) -> Doc ann
+prettyListF = cata go where
+  go NilF = "Nil"
+  go (ConsF x rs) = pretty x <+> ":" <+> rs 
+
 -- cata
 
-sumList :: Num a => Algebra (ListF a) a
-sumList NilF = 0 -- dubious, perhaps
-sumList (ConsF x r) = x + r
+sumList :: Num a => Term (ListF a) -> a
+sumList = cata go where
+  go :: Num a => Algebra (ListF a) a
+  go NilF = 0 -- dubious, perhaps
+  go (ConsF x r) = x + r
 
 sumList' :: Num a => List a -> a
 sumList' Nil = 0
 sumList' (Cons x rs) = x + sumList' rs
 
-
-
 -- para
 
-runs :: Eq a => RAlgebra' (ListF a) [Int]
-runs _ NilF = []
-runs (In (ConsF x (In NilF))) _ = [1]
-runs (In (ConsF _ (In (ConsF y _)))) (ConsF x (r:rs))
-  | x == y = r + 1 : rs
-  | otherwise = 1 : (r : rs)
+
+runs :: Eq a => Term (ListF a) -> [Int]
+runs = para' go where
+  go :: Eq a => RAlgebra' (ListF a) [Int]
+  go _ NilF = []
+  go (In (ConsF x (In NilF))) _ = [1]
+  go (In (ConsF _ (In (ConsF y _)))) (ConsF x (r:rs))
+     | x == y = r + 1 : rs
+     | otherwise = 1 : (r : rs)
 
 
 runs' :: Eq a => List a -> [Int]
@@ -55,3 +66,11 @@ runs' (Cons x rs@(Cons y xs)) = case runs' rs of
   (r:rs) -> if x == y
             then (r+1:rs)
             else (1:(r:rs))
+
+-- ana
+
+evens :: Integer -> Term (ListF Integer)
+evens = ana go where
+  go :: CoAlgebra (ListF Integer) Integer
+  go 0 = NilF
+  go n = ConsF (2 * n) (n - 1)
