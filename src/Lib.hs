@@ -48,3 +48,4 @@ someFunc = do
   putDoc . E.prettyExpr $ E.randExpr (E.Seed 0 (fst $ Random.split rnd))
   putStrLn ""
   putStrLn . show $ N.factorial (N.toNat 6)
+  putStrLn . show . N.fibonacci . N.toNat $ 1700

@@ -5,6 +5,7 @@ module Nat
   , toNat
   , fromNat
   , factorial
+  , fibonacci
   ) where
 
 import Schema
@@ -25,3 +26,9 @@ factorial :: Term Nat -> Integer
 factorial = para' go where
   go _ Zero = 1
   go t (Succ x) = fromNat t * x
+
+fibonacci :: Term Nat -> Integer
+fibonacci = histo go where
+  go Zero = 1
+  go (Succ (Attr _ Zero)) = 1
+  go (Succ (Attr x (Succ (Attr y _)))) = x + y
