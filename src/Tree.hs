@@ -114,22 +114,28 @@ maxNodeChildren' _ = 0
 
 -- futu
 
--- problem: grow a random tree with leaf probability increasing with depth
--- p = e^n / (1 + e^n)
+-- problem: grow a random tree with leaf probability increasing with depth)
 
 data Seed = Seed
-  { depth :: Int
+  { depth :: Double
   , rng :: Random.StdGen
   }
 
 randTree :: Seed -> Term (TreeF String Int String)
 randTree = futu go where
+  go :: CVCoAlgebra (TreeF String Int String) Seed
   go (Seed depth rng)
     -- make a leaf
-    | r < (3 ** (fromIntegral depth)) / (1 + 3 ** (fromIntegral depth)) = LeafF "."
+    | p < depth / (depth + 3) = LeafF "."
     -- branch
-    | otherwise =
-        let (rhs, lhs) = Random.split rng 
-        in NodeF "*" [(1, Automatic (Seed (depth + 1) lhs)), (1, Automatic (Seed (depth + 1) rhs))]
+    | otherwise = NodeF "*" [(1, l), (1, r)]
     where
-    (r, _) = Random.randomR (0 :: Double, 1) rng
+    -- generate a leaf probability
+    (p, _) = Random.randomR (0 :: Double, 1) rng
+
+    -- create right and left hand random number generators
+    (rhs, lhs) = Random.split rng 
+
+    -- generate right and left trees and incremented depth
+    r = Automatic (Seed (depth + 1) lhs)
+    l = Automatic (Seed (depth + 1) rhs)

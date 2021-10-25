@@ -38,4 +38,4 @@ someFunc = do
   putStrLn ""
   putDoc . L.prettyListF . L.collatz $ 10000
   putStrLn ""
-  putDoc . T.newick . T.randTree $ T.Seed (-5) rnd
+  putDoc . T.newick . T.randTree $ T.Seed 0 rnd
