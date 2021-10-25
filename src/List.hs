@@ -11,6 +11,7 @@ module List
   , runs
   , runs'
   , evens
+  , collatz
   ) where
 
 import Schema
@@ -74,3 +75,13 @@ evens = ana go where
   go :: CoAlgebra (ListF Integer) Integer
   go 0 = NilF
   go n = ConsF (2 * n) (n - 1)
+
+collatz :: Integer -> Term (ListF Integer)
+collatz = ana go where
+  go :: CoAlgebra (ListF Integer) Integer
+  go 1 = NilF
+  go x
+    | mod x 2 == 1 = ConsF x (x * 3 + 1)
+    | otherwise = ConsF x (div x 2)
+
+-- apo

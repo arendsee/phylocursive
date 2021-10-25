@@ -32,3 +32,7 @@ someFunc = do
   putStrLn . show $ L.runs' (L.toList [1,2,2,2,3,4])
   putDoc . L.prettyListF . L.evens $ 12
   putStrLn ""
+  putDoc . L.prettyListF . L.collatz $ 12
+  putStrLn ""
+  putDoc . L.prettyListF . L.collatz $ 10000
+  putStrLn ""
