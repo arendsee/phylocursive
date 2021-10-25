@@ -8,8 +8,10 @@ import Schema
 import Expr ()
 import Tree ()
 import List ()
+import Nat  ()
 import qualified List as L
 import qualified Expr as E
+import qualified Nat  as N
 import qualified Tree as T
 
 import Data.Text.Prettyprint.Doc
@@ -45,3 +47,4 @@ someFunc = do
   putStrLn ""
   putDoc . E.prettyExpr $ E.randExpr (E.Seed 0 (fst $ Random.split rnd))
   putStrLn ""
+  putStrLn . show $ N.factorial (N.toNat 6)

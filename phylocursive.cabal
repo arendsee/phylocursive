@@ -28,6 +28,7 @@ library
       Expr
       Lib
       List
+      Nat
       Schema
       Tree
   other-modules:
