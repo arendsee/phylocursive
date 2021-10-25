@@ -9,6 +9,7 @@ module Tree
   , totalBranchLength
   , maxDepth
   , newick
+  , pathToLeaf
   -- * ana examples
   , binaryUltrametric
   -- * para examples
@@ -20,6 +21,7 @@ module Tree
 
 import Data.Text.Prettyprint.Doc
 import Schema
+import Data.Maybe
 import qualified System.Random as Random
 
 data TreeF a b c r = NodeF a [(b, r)] | LeafF c
@@ -65,13 +67,18 @@ newick = cata go where
   go (LeafF x) = pretty x
   go (NodeF x kids) = (tuple' [x <> ":" <> pretty b | (b, x) <- kids]) <> pretty x
 
-
 maxDepth :: (Num b, Ord b) => Term (TreeF a b c) -> b
 maxDepth = cata go where
   go :: (Num b, Ord b) => Algebra (TreeF a b c) b
   go (LeafF _) = 0
   go (NodeF _ kids) = maximum [b + x | (b, x) <- kids]
 
+pathToLeaf :: (Eq c) => c -> Term (TreeF a b c) -> Maybe [a]
+pathToLeaf searchLeaf = cata go where
+  go (LeafF foundLeaf)
+    | searchLeaf == foundLeaf = Just []
+    | otherwise = Nothing
+  go (NodeF a kids) = fmap ((:) a) $ listToMaybe [xs | (_, Just xs) <- kids]
 
 -- ana ------------------------------------------------------------------------
 

@@ -39,3 +39,9 @@ someFunc = do
   putDoc . L.prettyListF . L.collatz $ 10000
   putStrLn ""
   putDoc . T.newick . T.randTree $ T.Seed 0 rnd
+  putStrLn ""
+  putStrLn . show $ T.pathToLeaf "A" T.treeC
+  putDoc . E.prettyExpr $ E.randExpr (E.Seed 0 rnd)
+  putStrLn ""
+  putDoc . E.prettyExpr $ E.randExpr (E.Seed 0 (fst $ Random.split rnd))
+  putStrLn ""
