@@ -67,3 +67,15 @@ someFunc = do
   timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 4096  -- 0.09
   timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 8192  -- 0.27
   timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 16384 -- 1.06
+  -- test with varying denominations
+  putStrLn "Varying denominations"
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 8192  -- 0.01
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25,
+                                     271,273,91,67] 8192 -- 1.06
+  timeIt . putStrLn . show $ N.ukp3 [271,273,91,67,             
+                                     371,373,191,167,             
+                                     1113,1117,1111,1121,             
+                                     1313,1317,1311,1313,             
+                                     967,977,987,997,
+                                     767,777,787,797,
+                                     111111,111112] 181928 -- 1.06
