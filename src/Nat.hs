@@ -1,4 +1,4 @@
-{-# LANGUAGE PolyKinds, TypeApplications, DeriveFunctor, OverloadedStrings #-}
+{-# LANGUAGE PolyKinds, TypeApplications, DeriveFunctor, OverloadedStrings, FlexibleContexts #-}
 
 module Nat
   ( Nat(..)
@@ -9,11 +9,14 @@ module Nat
   , ukp1
   , ukp2
   , ukp3
+  , ukp4
+  , unboundedKnapsack
   ) where
 
 import Schema
 import Data.Maybe
 import Safe
+import Data.Map (Map)
 import qualified Data.Map as Map
 import Control.Monad.State
 import qualified Data.List as DL
@@ -101,36 +104,82 @@ ukp2 ds i0
     inc i (x:xs) = x : inc (i-1) xs
 
 
-type Memo = Map.Map Int (Maybe [Int])
+type Memo a = Map a (a, [Int])
 
-ukp3 :: UKP
-ukp3 ds0 i0 = countRuns <$> evalState (ukp i0) Map.empty where
+type UKPRem = [Int] -> Int -> (Int, [(Int, Int)])
+
+ukp3 :: UKPRem
+ukp3 ds0 i0 = (\(r, xs) -> (r, countRuns xs)) $ evalState (ukp i0) Map.empty where
+  ds = DL.reverse . DL.sort $ ds0
+
+  chk :: Int -> Int -> State (Memo Int) (Int, [Int])
+  chk i j
+    | k < 0 = return (j - i, [])
+    | k == 0 = return (0, [j])
+    | otherwise = do
+      (r, xs) <- mem ukp k
+      return (r, j:xs)
+    where
+      k = i - j
+
+  ukp :: Int -> State (Memo Int) (Int, [Int])
+  ukp i = fromJust . minimumBy criterion <$> mapM (chk i) ds
+
+  -- What do you want?
+  --   * The least leftover space?
+  --   * The maximum number of items?
+  --   * The minimum number of items?
+  --   * Some balance between the two?
+  --
+  -- The coin problems wants the minimum number of items and a remainder of 0.
+  -- But this a rather special case.
+  criterion :: (Int, [Int]) -> (Int, Int)
+  criterion (r, xs) = (r, length xs)
+
+ukp4 :: UKPRem
+ukp4 = unboundedKnapsack (\(x, xs) -> (x, length xs))
+
+
+
+-- This is the final general form of the unbounded knapsack problem
+unboundedKnapsack ::
+  (Ord cost, Num weight, Ord weight)
+  => ((weight, [weight]) -> cost) -- the remainder and the selected weights
+  -> [weight] -- weights that are summed to try to hit the goal
+  -> weight -- the goal
+  -> (weight, [(weight, Int)])
+unboundedKnapsack criterion weights goal = reshape $ evalState (ukp goal) Map.empty
+  where
   -- Searching largest elements first with memoization is sufficient to avoid
   -- searching smaller denominations sum to larger denominations. That is, it
   -- avoids the problem solved by `mask` in ukp2.
   --
   -- This seems to make about a 2 fold difference for the 16384 case.
-  ds = DL.reverse . DL.sort $ ds0 
+  ds = DL.reverse . DL.sort $ weights
 
-  chk :: Int -> Int -> State Memo (Maybe [Int])
   chk i j
-    | k < 0 = return Nothing
-    | k == 0 = return $ Just [j]
+    | k < 0 = return (j - i, [])
+    | k == 0 = return (0, [j])
     | otherwise = do
-      s <- get
-      mayXs <- case Map.lookup k s of
-        Nothing -> do
-          r <- ukp k
-          modify (Map.insert k r)
-          return r
-        (Just x) -> return x
-      return $ fmap ((:)j) mayXs
+      (r, xs) <- mem ukp k
+      return (r, j:xs)
     where
       k = i - j
 
-  ukp :: Int -> State Memo (Maybe [Int])
-  ukp i = minimumBy length . catMaybes <$> mapM (chk i) ds
+  ukp i = fromJust . minimumBy criterion <$> mapM (chk i) ds
 
+  reshape (r, xs) = (r, countRuns xs)
+
+
+mem :: Ord i => (i -> State (Map i o) o) -> i -> State (Map i o) o
+mem f x = do
+  m <- get
+  case Map.lookup x m of
+    (Just x') -> return x'
+    Nothing -> do
+      x' <- f x
+      modify (Map.insert x x')
+      return x'
 
 countRuns :: (Ord a) => [a] -> [(a, Int)]
 countRuns = map (\xs@(x:_) -> (x, length xs)) . DL.group
