@@ -17,6 +17,7 @@ import qualified Tree as T
 import Data.Text.Prettyprint.Doc
 import Data.Text.Prettyprint.Doc.Render.Text
 import qualified System.Random as Random
+import System.TimeIt
 
 someFunc :: IO ()
 someFunc = do
@@ -49,3 +50,8 @@ someFunc = do
   putStrLn ""
   putStrLn . show $ N.factorial (N.toNat 6)
   putStrLn . show . N.fibonacci . N.toNat $ 1700
+  putStrLn "Naive coin problem (exponential time)"
+  timeIt . putStrLn . show $ N.ukp1 [1,5,10,25] 59
+  putStrLn "Slightly less naive (still exponential time)"
+  timeIt . putStrLn . show $ N.ukp2 [1,5,10,25] 59
+  timeIt . putStrLn . show $ N.ukp2 [1,5,10,25] 149

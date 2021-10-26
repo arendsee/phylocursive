@@ -39,6 +39,8 @@ library
       base >=4.7 && <5
     , prettyprinter >=1.2.0.1 && <1.8
     , random
+    , safe
+    , timeit
   default-language: Haskell2010
 
 executable phylocursive-exe
@@ -53,6 +55,8 @@ executable phylocursive-exe
     , phylocursive
     , prettyprinter >=1.2.0.1 && <1.8
     , random
+    , safe
+    , timeit
   default-language: Haskell2010
 
 test-suite phylocursive-test
@@ -68,4 +72,6 @@ test-suite phylocursive-test
     , phylocursive
     , prettyprinter >=1.2.0.1 && <1.8
     , random
+    , safe
+    , timeit
   default-language: Haskell2010
