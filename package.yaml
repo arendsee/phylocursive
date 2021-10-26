@@ -25,6 +25,9 @@ dependencies:
   - safe
   - timeit
   - prettyprinter >=1.2.0.1 && <1.8
+  - containers
+  - mtl
+  - extra
 
 library:
   source-dirs: src

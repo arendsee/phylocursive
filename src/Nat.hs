@@ -8,11 +8,16 @@ module Nat
   , fibonacci
   , ukp1
   , ukp2
+  , ukp3
   ) where
 
 import Schema
 import Data.Maybe
 import Safe
+import qualified Data.Map as Map
+import Control.Monad.State
+import qualified Data.List as DL
+import qualified Data.List.Extra as DLE
 
 data Nat a = Zero | Succ a
   deriving(Show, Ord, Eq, Functor)
@@ -37,14 +42,15 @@ fibonacci = histo go where
   go (Succ (Attr _ Zero)) = 1
   go (Succ (Attr x (Succ (Attr y _)))) = x + y
 
+-- The Unbounded Knapsack Problem. Input is a list of weights (e.g., coin
+-- denominations) and a total desired size, sum of weights.
+type UKP = [Int] -> Int -> Maybe [(Int, Int)]
+
 -- Naive unbounded knapsack problem using explicit, unmemoized recursion. It
 -- recursively tries each denomination and choose the one with the fewest
 -- coins. Runs in exponential time.
-ukp1
-  :: [Int] -- denominations
-  -> Int   -- total
-  -> Maybe [Int] -- trace
-ukp1 ds i0 = snd <$> (f i0) where
+ukp1 :: UKP
+ukp1 ds i0 = countRuns . snd <$> (f i0) where
   f :: Int -> Maybe (Int, [Int])
   f i | i < 0 = Nothing
       | i == 0 = Just (0, [])
@@ -65,8 +71,13 @@ ukp1 ds i0 = snd <$> (f i0) where
 -- differ only by order. Also it will simplify the process of pruning branches
 -- that are guaranteed to be sub-optimal (such as any path with 5 or more
 -- pennies).
-ukp2 :: [Int] -> Int -> Maybe [Int]
-ukp2 ds i0 = concat . zipWith (\d n -> take n (repeat d)) ds <$> f 0 (take (length ds) (repeat 0)) where
+ukp2 :: UKP
+ukp2 ds i0
+  = countRuns 
+  . concat
+  . zipWith (\d n -> take n (repeat d)) ds
+  <$> f 0 (take (length ds) (repeat 0))
+  where
   f :: Int -- total number so far (starting at 0, counting up)
     -> [Int] -- counts for each denomination
     -> Maybe [Int] -- counts for each denomincation
@@ -74,7 +85,7 @@ ukp2 ds i0 = concat . zipWith (\d n -> take n (repeat d)) ds <$> f 0 (take (leng
     | total > i0 = Nothing
     | total == i0 = Just xs
     | otherwise = minimumBy length
-        $ catMaybes [f (total + j) (inc xs k)
+        $ catMaybes [f (total + j) (inc k xs)
                     | (i, (j, maxN), k) <- zip3 xs mask [0..]
                     , j + total <= i0
                     , i + 1 <= maxN
@@ -85,9 +96,44 @@ ukp2 ds i0 = concat . zipWith (\d n -> take n (repeat d)) ds <$> f 0 (take (leng
              | large <- ds, mod large small == 0, large > small
              ] | small <- ds]
 
-    inc :: [Int] -> Int -> [Int]
-    inc (x:xs) 0 = (x+1):xs
-    inc (x:xs) i = x : inc xs (i-1)
+    inc :: Int -> [Int] -> [Int]
+    inc 0 (x:xs) = (x+1):xs
+    inc i (x:xs) = x : inc (i-1) xs
+
+
+type Memo = Map.Map Int (Maybe [Int])
+
+ukp3 :: UKP
+ukp3 ds0 i0 = countRuns <$> evalState (ukp i0) Map.empty where
+  -- Searching largest elements first with memoization is sufficient to avoid
+  -- searching smaller denominations sum to larger denominations. That is, it
+  -- avoids the problem solved by `mask` in ukp2.
+  --
+  -- This seems to make about a 2 fold difference for the 16384 case.
+  ds = DL.reverse . DL.sort $ ds0 
+
+  chk :: Int -> Int -> State Memo (Maybe [Int])
+  chk i j
+    | k < 0 = return Nothing
+    | k == 0 = return $ Just [j]
+    | otherwise = do
+      s <- get
+      mayXs <- case Map.lookup k s of
+        Nothing -> do
+          r <- ukp k
+          modify (Map.insert k r)
+          return r
+        (Just x) -> return x
+      return $ fmap ((:)j) mayXs
+    where
+      k = i - j
+
+  ukp :: Int -> State Memo (Maybe [Int])
+  ukp i = minimumBy length . catMaybes <$> mapM (chk i) ds
+
+
+countRuns :: (Ord a) => [a] -> [(a, Int)]
+countRuns = map (\xs@(x:_) -> (x, length xs)) . DL.group
 
 minimumBy :: Ord b => (a -> b) -> [a] -> Maybe a
 minimumBy _ [] = Nothing

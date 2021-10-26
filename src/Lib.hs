@@ -50,8 +50,20 @@ someFunc = do
   putStrLn ""
   putStrLn . show $ N.factorial (N.toNat 6)
   putStrLn . show . N.fibonacci . N.toNat $ 1700
-  putStrLn "Naive coin problem (exponential time)"
-  timeIt . putStrLn . show $ N.ukp1 [1,5,10,25] 59
-  putStrLn "Slightly less naive (still exponential time)"
-  timeIt . putStrLn . show $ N.ukp2 [1,5,10,25] 59
-  timeIt . putStrLn . show $ N.ukp2 [1,5,10,25] 149
+  -- putStrLn "Naive coin problem (exponential time)"
+  -- timeIt . putStrLn . show $ N.ukp1 [1,5,10,25] 59
+  -- putStrLn "Slightly less naive (still exponential time)"
+  -- timeIt . putStrLn . show $ N.ukp2 [1,5,10,25] 59
+  -- timeIt . putStrLn . show $ N.ukp2 [1,5,10,25] 149
+  putStrLn "Memoized UKP"
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 4
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 11
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 40
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 149
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 256
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 512
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 1024  -- 0.01
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 2048  -- 0.03
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 4096  -- 0.09
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 8192  -- 0.27
+  timeIt . putStrLn . show $ N.ukp3 [1,5,10,25] 16384 -- 1.06
