@@ -11,6 +11,7 @@ module Nat
   , ukp3
   , ukp4
   , unboundedKnapsack
+  , change
   ) where
 
 import Schema
@@ -190,3 +191,34 @@ minimumBy _ [x] = Just x
 minimumBy f (x:xs) = case minimumBy f xs of
   Nothing -> Just x
   (Just y) -> Just $ if f x < f y then x else y
+
+
+------ Patrick's solution ------------------------------
+
+type Cent = Integer
+coins = [25,10,5,1]
+
+change :: Cent -> Int
+change amt = histo go (expand amt) where
+  go :: Nat (Attr Nat Int) -> Int
+  go Zero = 0
+  go curr@(Succ attr) = let 
+    given = compress curr
+    validCoins = filter (<= given) coins
+    remaining = map (given -) validCoins
+    (zeroes, toProcess) = DL.partition (== 0) remaining
+    results = sum (map (lookup' attr) toProcess) 
+    in length zeroes + results
+
+  lookup' :: Attr Nat a -> Integer -> a
+  lookup' cache 0 = attribute cache
+  lookup' cache n = lookup' inner (n - 1) where (Succ inner) = hole cache
+
+  -- Convert from a natural number to its foldable equivalent, and vice versa.
+  expand :: Integer -> Term Nat
+  expand 0 = In Zero
+  expand n = In (Succ (expand (n - 1)))
+
+  compress :: Nat (Attr Nat a) -> Integer
+  compress Zero              = 0
+  compress (Succ (Attr _ x)) = 1 + compress x
