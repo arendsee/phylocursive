@@ -15,6 +15,7 @@ import qualified Nat  as N
 import qualified Tree as T
 import qualified Tree23 as T23
 
+import qualified Data.List as DL
 import Data.Text.Prettyprint.Doc
 import Data.Text.Prettyprint.Doc.Render.Text
 import qualified System.Random as Random
@@ -126,5 +127,26 @@ someFunc = do
   -- timeIt . putStrLn . show $ L.nth1 100 randomList
   -- timeIt . putStrLn . show $ L.nth2 100 randomList
 
-  putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11] 
-  putStrLn . show . T23.lookupNearest 11 $ T23.fromList [1,4,2,3,5,6,7,8,9,10,13] 
+  putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11]
+  putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11,12]
+  putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11,12,13]
+  putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11,12,13,14]
+  putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11,12,13,14,15]
+  putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11,12,13,14,15,16]
+  putStrLn . show . T23.lookupNearest 11 $ T23.fromList [1,4,2,3,5,6,7,8,9,10,13]
+
+  putStrLn . show $ T23.fromList [1,1,1,1,1,1,1,1,1]
+  putStrLn . show $ T23.fromList (DL.reverse [1..17])
+
+  putStrLn . show $ T23.fromList (DL.reverse [1..8] ++ [1..8])
+
+  let n = 1000000
+      orderedList = [1..n]
+      randomInt = Random.getStdRandom (Random.randomR (1, n))
+  randomList <- replicateM n (randomInt :: IO Int)
+  putStrLn . show . last $ randomList -- force evaluation
+
+  putStrLn "building a tree"
+  timeIt . putStrLn . show . T23.lookupNearest 100 $ T23.fromList randomList
+  putStrLn "building and sorting a list"
+  timeIt . putStrLn . show . last . DL.sort $ randomList
