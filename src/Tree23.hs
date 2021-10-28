@@ -51,17 +51,28 @@ data Result a
   | Full3 a a (Result a) (Result a) (Result a)
   deriving(Eq, Ord, Show)
 
-
-insert :: (Show a, Ord a) => a -> Tree23 a -> Tree23 a
-insert x = fromResult . unfour . insert' x
-
 fromResult :: Result a -> Tree23 a
 fromResult (Full x) = x
 fromResult (Part x lhs rhs) = Node2 x (fromResult lhs) (fromResult rhs)
 fromResult (Full2 n lhs rhs) = Node2 n (fromResult lhs) (fromResult rhs)
 fromResult (Full3 n1 n2 lhs mid rhs) = Node3 n1 n2 (fromResult lhs) (fromResult mid) (fromResult rhs)
 
-insert' :: (Show a, Ord a) => a -> Tree23 a -> Result a
+deleteMin :: Ord a => Tree23 a -> Tree23 a
+deleteMin = undefined
+
+deleteMax :: Ord a => Tree23 a -> Tree23 a
+deleteMax = undefined
+
+deleteIdx :: Ord a => Tree23 a -> Tree23 a
+deleteIdx = undefined
+
+deleteVal :: Ord a => Tree23 a -> Tree23 a
+deleteVal = undefined
+
+insert :: (Show a, Ord a) => a -> Tree23 a -> Tree23 a
+insert x = fromResult . unfour . insert' x
+
+insert' :: Ord a => a -> Tree23 a -> Result a
 -- base cases
 insert' x Nil23 = Full $ Node2 x empty empty
 insert' x (Node2 y Nil23 Nil23)
@@ -80,10 +91,9 @@ insert' x (Node3 y z lhs mid rhs)
   | x < y = unfour (Full3 y z (insert' x lhs) (Full mid) (Full rhs))
   | x < z = unfour (Full3 y z (Full lhs) (insert' x mid) (Full rhs))
   | True  = unfour (Full3 y z (Full lhs) (Full mid) (insert' x rhs))
-insert' _ tree = error $ "bad case: " ++ show tree
 
 
-unfour :: (Show a, Ord a) => Result a -> Result a
+unfour :: Ord a => Result a -> Result a
 
 -- insert into a 3-node with a 2-node parent
 --         (n1)           (n2 n1)
@@ -140,5 +150,3 @@ unfour x@(Part _ _ _) = x
 unfour (Full2 n (Full t1) (Full t2)) = Full $ Node2 n t1 t2
 
 unfour (Full3 n1 n2 (Full t1) (Full t2) (Full t3)) = Full $ Node3 n1 n2 t1 t2 t3
-
-unfour x = error . show $ x
