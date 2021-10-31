@@ -14,11 +14,13 @@ module List
   , collatz
   , nth1
   , nth2
+  , nth3
   ) where
 
 import Schema
 import Data.Text.Prettyprint.Doc
 import Data.List
+import qualified Tree23 as T 
 
 data ListF a r = NilF | ConsF a r
   deriving (Show, Ord, Eq, Functor)
@@ -124,3 +126,13 @@ add x ys@(y:rs)
 -- reduced to O(log(k)) if we swap the list for a tree. Inserts will cost
 -- log_b(k), though for a finger tree, b can be large, making the insertions
 -- effectively constant time.
+
+nth3 :: (Show a, Ord a) => Int -> [a] -> Maybe a
+nth3 _ [] = Nothing
+nth3 k (x:xs) = T.minVal $ f 0 x (T.singleton x) xs where
+  f _ _ ks [] = ks
+  f size smallest ks (x:xs)
+    | size < k = f (size + 1) (min smallest x) (T.insert x ks) xs
+    | x < smallest = f size smallest ks xs
+    | size == k = case T.deleteMin . T.insert x $ ks of
+      (newSmallest, ks') -> f size newSmallest ks' xs

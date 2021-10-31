@@ -4,8 +4,11 @@ module Tree23
  , empty
  , singleton
  , lookupNearest
+ , minVal
+ , maxVal
  , insert
  , deleteMin
+ , deleteMax
  ) where
 
 import qualified Data.List as DL
@@ -44,6 +47,20 @@ nearest x y z
 
 nearest3 :: (Num a, Ord a) => a -> a -> a -> a -> a 
 nearest3 x y1 y2 y3 = nearest x y1 $ nearest x y2 y3
+
+minVal :: Ord a => Tree23 a -> Maybe a
+minVal Nil23 = Nothing
+minVal (Node2 n Nil23 Nil23) = Just n
+minVal (Node3 n _ Nil23 Nil23 Nil23) = Just n
+minVal (Node2 _ t1 _) = minVal t1
+minVal (Node3 _ _ t1 _ _) = minVal t1
+
+maxVal :: Ord a => Tree23 a -> Maybe a
+maxVal Nil23 = Nothing
+maxVal (Node2 n Nil23 Nil23) = Just n
+maxVal (Node3 _ n Nil23 Nil23 Nil23) = Just n
+maxVal (Node2 _ _ t2) = maxVal t2
+maxVal (Node3 _ _ _ _ t3) = maxVal t3
 
 data Result a
   = Full (Tree23 a)
@@ -141,23 +158,27 @@ unfour (Full2 n (Full t1) (Full t2)) = Full $ Node2 n t1 t2
 unfour (Full3 n1 n2 (Full t1) (Full t2) (Full t3)) = Full $ Node3 n1 n2 t1 t2 t3
 
 
-deleteMin :: (Show a, Ord a) => Tree23 a -> Tree23 a
-deleteMin = unDelResult . deleteMin'
+deleteMin :: (Show a, Ord a) => Tree23 a -> (a, Tree23 a)
+deleteMin = (\(x, t) -> (x, unDelResult t)) . deleteMin'
 
-deleteMin' :: (Show a, Ord a) => Tree23 a -> DelResult a
-deleteMin' (Node2 _ Nil23 Nil23) = Hole Nil23
-deleteMin' (Node3 _ n Nil23 Nil23 Nil23) = DCap $ Node2 n Nil23 Nil23
-deleteMin' (Node2 n t1 t2) = unhole $ Hole2 n (deleteMin' t1) (DCap t2)
-deleteMin' (Node3 n1 n2 t1 t2 t3) = unhole $ Hole3 n1 n2 (deleteMin' t1) (DCap t2) (DCap t3)
+deleteMin' :: (Show a, Ord a) => Tree23 a -> (a, DelResult a)
+deleteMin' (Node2 x Nil23 Nil23) = (x, Hole Nil23)
+deleteMin' (Node3 x n Nil23 Nil23 Nil23) = (x, DCap $ Node2 n Nil23 Nil23)
+deleteMin' (Node2 n t1 t2) = case deleteMin' t1 of
+  (x, r1) -> (x, unhole $ Hole2 n r1 (DCap t2))
+deleteMin' (Node3 n1 n2 t1 t2 t3) = case deleteMin' t1 of
+  (x, r1) -> (x, unhole $ Hole3 n1 n2 r1 (DCap t2) (DCap t3))
 
-deleteMax :: Ord a => Tree23 a -> Tree23 a
-deleteMax = undefined
+deleteMax :: (Show a, Ord a) => Tree23 a -> (a, Tree23 a)
+deleteMax = (\(x, t) -> (x, unDelResult t)) . deleteMax'
 
-deleteIdx :: Ord a => Tree23 a -> Tree23 a
-deleteIdx = undefined
-
-deleteVal :: Ord a => Tree23 a -> Tree23 a
-deleteVal = undefined
+deleteMax' :: (Show a, Ord a) => Tree23 a -> (a, DelResult a)
+deleteMax' (Node2 x Nil23 Nil23) = (x, Hole Nil23)
+deleteMax' (Node3 n x Nil23 Nil23 Nil23) = (x, DCap $ Node2 n Nil23 Nil23)
+deleteMax' (Node2 n t1 t2) = case deleteMax' t2 of
+  (x, r2) -> (x, unhole $ Hole2 n (DCap t1) r2 )
+deleteMax' (Node3 n1 n2 t1 t2 t3) = case deleteMax' t3 of
+  (x, r3) -> (x, unhole $ Hole3 n1 n2 (DCap t1) (DCap t2) r3)
 
 -- This datastructure is the only one needed for removing a leaf, such as in
 -- delete min or max element
@@ -175,13 +196,16 @@ unDelResult (Hole2 n1 t1 t2) = Node2 n1 (unDelResult t1) (unDelResult t2)
 unDelResult (Hole3 n1 n2 t1 t2 t3) = Node3 n1 n2 (unDelResult t1) (unDelResult t2) (unDelResult t3)
 
 unhole :: (Show a, Ord a) => DelResult a -> DelResult a
+
 --                      | (-)
 --    (n2)           (n1 n2)
 --    /   \ (-)      /   |   \
 --   (n1)  t3 ==> t1    t2   t3
 --  /   \
 -- t1    t2
+-- Hole2 Node2 Hole
 unhole (Hole2 n2 (DCap (Node2 n1 t1 t2)) (Hole t3)) = Hole $ Node3 n1 n2 t1 t2 t3
+-- Hole2 Hole Node2
 unhole (Hole2 n1 (Hole t1) (DCap (Node2 n2 t2 t3))) = Hole $ Node3 n1 n2 t1 t2 t3
 
 --          (n3)             (n2)
@@ -189,16 +213,20 @@ unhole (Hole2 n1 (Hole t1) (DCap (Node2 n2 t2 t3))) = Hole $ Node3 n1 n2 t1 t2 t
 --    (n1 n2)   t4  ==>  (n1)     (n3)
 --    /  |   \          /    \    /   \
 --  t1  t2   t3        t1    t2  t3    t4
+-- Hole2 Node3 Hole
 unhole (Hole2 n3 (DCap (Node3 n1 n2 t1 t2 t3)) (Hole t4))
   = DCap $ Node2 n2 (Node2 n1 t1 t2) (Node2 n3 t3 t4)
+-- Hole2 Hole Node3
 unhole (Hole2 n1 (Hole t1) (DCap (Node3 n2 n3 t2 t3 t4)))
   = DCap $ Node2 n2 (Node2 n1 t1 t2) (Node2 n3 t3 t4)
+
 
 --      (n1 n4)            (n2 n4)
 --  (-)/   |   \          /   |   \
 --   t1 (n2 n3) t5 ==>  n1    n3   t5
 --      /  |  \        /  \  /  \
 --     t2  t3  t4    t1  t2 t3  t4
+-- Hole3 Hole Node3 *
 unhole (Hole3 n1 n4 (Hole t1) (DCap (Node3 n2 n3 t2 t3 t4)) (DCap t5))
   = DCap $ Node3 n2 n4 (Node2 n1 t1 t2) (Node2 n3 t3 t4) t5
 
@@ -207,6 +235,7 @@ unhole (Hole3 n1 n4 (Hole t1) (DCap (Node3 n2 n3 t2 t3 t4)) (DCap t5))
 --  (n1 n2)   t4    t5 ==>  (n1)   (n3)  t5
 --  /  |  \                 /  \   /  \
 -- t1 t2  t3              t1   t2 t3  t4
+-- Hole3 Node3 Hole *
 unhole (Hole3 n3 n4 (DCap (Node3 n1 n2 t1 t2 t3)) (Hole t4) (DCap t5))
   = DCap $ Node3 n2 n4 (Node2 n1 t1 t2) (Node2 n3 t3 t4) t5
 
@@ -215,7 +244,7 @@ unhole (Hole3 n3 n4 (DCap (Node3 n1 n2 t1 t2 t3)) (Hole t4) (DCap t5))
 -- t1   t2    (n3 n4)   =>  t1   (n2)  (n4)
 --            /  |   \           /  \  /  \
 --           t3  t4  t5        t2  t3  t4  t5
-
+-- Hole3 * Hole Node3
 unhole (Hole3 n1 n2 (DCap t1) (Hole t2) (DCap (Node3 n3 n4 t3 t4 t5)))
   = DCap $ Node3 n1 n3 t1 (Node2 n2 t2 t3) (Node2 n4 t4 t5)
 
@@ -224,6 +253,7 @@ unhole (Hole3 n1 n2 (DCap t1) (Hole t2) (DCap (Node3 n3 n4 t3 t4 t5)))
 --  (n1)   (n3)  t5   ==> (n1 n2)    (n4)
 --  /  \   /  \          /   |  \    /  \
 -- t1 t2  t3  t4        t1  t2  t3  t4  t5
+-- Hole3 Node2 Node2 Hole
 unhole (Hole3 n2 n4 (DCap (Node2 n1 t1 t2)) (DCap (Node2 n3 t3 t4)) (Hole t5))
  = DCap $ Node2 n3 (Node3 n1 n2 t1 t2 t3) (Node2 n4 t4 t5)
 
@@ -232,6 +262,7 @@ unhole (Hole3 n2 n4 (DCap (Node2 n1 t1 t2)) (DCap (Node2 n3 t3 t4)) (Hole t5))
 -- t1   t2  (n3) ==> t1    (n2 n3)
 --          /  \           /  |  \
 --         t3  t4        t2  t3  t4
+-- Hole3 * Hole Node2
 unhole (Hole3 n1 n2 (DCap t1) (Hole t2) (DCap (Node2 n3 t3 t4)))
   = DCap $ Node2 n1 t1 (Node3 n2 n3 t2 t3 t4)
 
@@ -240,8 +271,18 @@ unhole (Hole3 n1 n2 (DCap t1) (Hole t2) (DCap (Node2 n3 t3 t4)))
 --  t1  (n2)  (n4) ==>  (n1)     (n3 n4)
 --      /  \  /  \      /  \     /  |  \
 --     t2 t3 t4  t5    t1  t2  t3  t4  t5
+-- Hole3 Hole Node2 Node2
 unhole (Hole3 n1 n3 (Hole t1) (DCap (Node2 n2 t2 t3)) (DCap (Node2 n4 t4 t5)))
   = DCap $ Node2 n2 (Node2 n1 t1 t2) (Node3 n3 n4 t3 t4 t5)
+
+--     (n1 n3)                   (n2 n4)
+-- (-)/   |   \                 /   |   \
+--  t1  (n2)  (n4 n5) ==>   (n1)   (n3) (n5)
+--      /  \  /  |  \       /  \   /  \ /  \
+--     t2 t3 t4  t5  t6    t1  t2 t3 t4 t5 t6
+-- Hole3 Hole Node2 Node3
+unhole (Hole3 n1 n3 (Hole t1) (DCap (Node2 n2 t2 t3)) (DCap (Node3 n4 n5 t4 t5 t6)))
+  = DCap $ Node3 n2 n4 (Node2 n1 t1 t2) (Node2 n3 t3 t4) (Node2 n5 t5 t6)
 
 unhole (Hole2 n1 (DCap t1) (DCap t2)) = DCap (Node2 n1 t1 t2)
 
