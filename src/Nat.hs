@@ -11,7 +11,6 @@ module Nat
   , ukp3
   , ukp4
   , unboundedKnapsack
-  , change
   ) where
 
 import Schema
