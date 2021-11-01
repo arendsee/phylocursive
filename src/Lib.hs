@@ -14,6 +14,7 @@ import qualified Expr as E
 import qualified Nat  as N
 import qualified Tree as T
 import qualified Tree23 as T23
+import qualified FingerTree as FT
 
 import qualified Data.List as DL
 import Data.Text.Prettyprint.Doc
@@ -94,10 +95,10 @@ someFunc = do
   -- putStrLn . show $ L.nth2 5 [5,4,3,2,1,6,7,8,9]
 
 
-  let n = 5000000
-      orderedList = [1..n]
-      randomInt = Random.getStdRandom (Random.randomR (1, n))
-  randomList <- replicateM n (randomInt :: IO Int)
+  -- let n = 5000000
+  --     orderedList = [1..n]
+  --     randomInt = Random.getStdRandom (Random.randomR (1, n))
+  -- randomList <- replicateM n (randomInt :: IO Int)
 
   -- putStrLn "Ordered List"
   -- -- force evaluation
@@ -115,29 +116,29 @@ someFunc = do
   -- timeIt . putStrLn . show $ L.nth2 100 orderedList
   -- timeIt . putStrLn . show $ L.nth3 100 orderedList
 
-  putStrLn "Random List"
-  -- force evaluation
-  timeIt . putStrLn . show . last $ randomList
-  putStrLn "k=1"
-  timeIt . putStrLn . show $ L.nth1 1 randomList
-  timeIt . putStrLn . show $ L.nth2 1 randomList
-  timeIt . putStrLn . show $ L.nth3 1 randomList
-  putStrLn "k=10"
-  timeIt . putStrLn . show $ L.nth2 10 randomList
-  timeIt . putStrLn . show $ L.nth3 10 randomList
-  putStrLn "k=100"
-  timeIt . putStrLn . show $ L.nth2 100 randomList
-  timeIt . putStrLn . show $ L.nth3 100 randomList
-  putStrLn "k=1000"
-  timeIt . putStrLn . show $ L.nth2 1000 randomList
-  timeIt . putStrLn . show $ L.nth3 1000 randomList
-  putStrLn "k=10000"
-  timeIt . putStrLn . show $ L.nth2 10000 randomList
-  timeIt . putStrLn . show $ L.nth3 10000 randomList
-  putStrLn "k=100000"
-  timeIt . putStrLn . show $ L.nth3 100000 randomList
-  putStrLn "k=1000000"
-  timeIt . putStrLn . show $ L.nth3 1000000 randomList
+  -- putStrLn "Random List"
+  -- -- force evaluation
+  -- timeIt . putStrLn . show . last $ randomList
+  -- putStrLn "k=1"
+  -- timeIt . putStrLn . show $ L.nth1 1 randomList
+  -- timeIt . putStrLn . show $ L.nth2 1 randomList
+  -- timeIt . putStrLn . show $ L.nth3 1 randomList
+  -- putStrLn "k=10"
+  -- timeIt . putStrLn . show $ L.nth2 10 randomList
+  -- timeIt . putStrLn . show $ L.nth3 10 randomList
+  -- putStrLn "k=100"
+  -- timeIt . putStrLn . show $ L.nth2 100 randomList
+  -- timeIt . putStrLn . show $ L.nth3 100 randomList
+  -- putStrLn "k=1000"
+  -- timeIt . putStrLn . show $ L.nth2 1000 randomList
+  -- timeIt . putStrLn . show $ L.nth3 1000 randomList
+  -- putStrLn "k=10000"
+  -- timeIt . putStrLn . show $ L.nth2 10000 randomList
+  -- timeIt . putStrLn . show $ L.nth3 10000 randomList
+  -- putStrLn "k=100000"
+  -- timeIt . putStrLn . show $ L.nth3 100000 randomList
+  -- putStrLn "k=1000000"
+  -- timeIt . putStrLn . show $ L.nth3 1000000 randomList
 
   -- putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11]
   -- putStrLn . show $ T23.fromList [1,4,2,3,5,6,7,8,9,10,11,12]
@@ -165,3 +166,11 @@ someFunc = do
   -- timeIt . putStrLn . show . T23.lookupNearest 100 $ T23.fromList randomList
   -- putStrLn "building and sorting a list"
   -- timeIt . putStrLn . show . last . DL.sort $ randomList
+
+  putStrLn . show $ FT.toTree [1,2,3]
+  putStrLn . show $ FT.toTree [1,2,3,4,5,6,7]
+
+  putStrLn . show . FT.headMay $ FT.toTree [1,2,3,4,5,6,7]
+  putStrLn . show . FT.tailMay $ FT.toTree [1,2,3,4,5,6,7]
+  putStrLn . show . FT.initMay $ FT.toTree [1,2,3,4,5,6,7]
+  putStrLn . show . FT.lastMay $ FT.toTree [1,2,3,4,5,6,7]
