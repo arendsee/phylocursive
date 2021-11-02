@@ -2,6 +2,8 @@
 
 module FingerTree
   ( FingerTree(..)
+  , empty
+  , singleton
   , (|>)
   , (<|)
   , toTree
@@ -52,8 +54,21 @@ infixr 5 |>
 (|>) (Deep lhs down (D3 y1 y2 y3)) y4 = Deep lhs down (D4 y1 y2 y3 y4)
 (|>) (Deep lhs down (D4 y1 y2 y3 y4)) y5 = Deep lhs (down |> Node3 y1 y2 y3) (D2 y4 y5)
 
+-- shuttle a foldable of stuff into a tree
+(<*|) :: Foldable f => f a -> FingerTree a -> FingerTree a
+(<*|) = flip (foldr (<|))
+
+(|*>) :: Foldable f => FingerTree a -> f a -> FingerTree a
+(|*>) = foldl (|>)
+
+empty :: FingerTree a
+empty = Empty
+
+singleton :: a -> FingerTree a
+singleton x = Single x
+
 toTree :: Foldable f => f a -> FingerTree a
-toTree = foldr (<|) Empty
+toTree s = s <*| Empty
 
 toDigit :: Node a -> Digit a
 toDigit (Node2 x1 x2) = D2 x1 x2
@@ -110,3 +125,27 @@ initMay :: FingerTree a -> Maybe (FingerTree a)
 initMay tree = case viewR tree of
   NilR -> Nothing
   (ConsR t _) -> Just t
+
+toList :: Foldable f => f a -> [a]
+toList = foldr (:) []
+
+instance Semigroup (FingerTree a) where
+  (<>) x y = app3 x [] y
+
+instance Monoid (FingerTree a) where
+  mempty = Empty
+  mappend = (<>)
+
+-- append sandwich
+app3 :: FingerTree a -> [a] -> FingerTree a -> FingerTree a
+app3 Empty ds y = ds <*| y
+app3 x ds Empty = x |*> ds
+app3 (Single x) ds y = x <| (ds <*| y)
+app3 x ds (Single y) = (x |*> ds) |> y
+app3 (Deep lhs1 mid1 rhs1) ds (Deep lhs2 mid2 rhs2)
+  = Deep lhs1 (app3 mid1 (nodes $ toList rhs1 ++ toList lhs2) mid2) rhs2
+
+nodes [a, b] = [Node2 a b]
+nodes [a, b, c] = [Node3 a b c]
+nodes [a, b, c, d] = [Node2 a b, Node2 c d]
+nodes (a: b: c: xs) = Node3 a b c : nodes xs

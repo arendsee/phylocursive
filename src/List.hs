@@ -20,7 +20,9 @@ module List
 import Schema
 import Data.Text.Prettyprint.Doc
 import Data.List
-import qualified Tree23 as T 
+import qualified Tree23 as T
+import FingerTree ((|>), (<|))
+import qualified FingerTree as F
 
 data ListF a r = NilF | ConsF a r
   deriving (Show, Ord, Eq, Functor)
