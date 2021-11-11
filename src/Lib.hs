@@ -24,6 +24,11 @@ import qualified System.Random as Random
 import System.TimeIt
 import Control.Monad (replicateM)
 
+trueOrElse :: Eq a => a -> a -> Maybe (a, a)
+trueOrElse a b
+  | a == b = Nothing
+  | otherwise = Just (a, b)
+
 someFunc :: IO ()
 someFunc = do
   -- rnd <- Random.newStdGen
@@ -177,23 +182,58 @@ someFunc = do
   -- putStrLn . show . FT.lastMay $ FT.toTree [1,2,3,4,5,6,7]
 
 
-  putStrLn . show $ A.knight "a3" "c4"
-  putStrLn . show $ A.knight "a3" "b3"
-  putStrLn . show $ A.knight "a1" "h8"
-  putStrLn . show $ A.knight "a1" "h8"
+  -- putStrLn . show $ A.knight "a3" "c4"
+  -- putStrLn . show $ A.knight "a3" "b3"
+  -- putStrLn . show $ A.knight "a1" "h8"
+  -- putStrLn . show $ A.knight "a1" "h8"
+  --
+  -- putStrLn . show $ A.findAll 10 3
 
-  putStrLn . show $ A.findAll 10 3
+  -- square cases
+  putStrLn . show $ trueOrElse (A.elderAge 1 1 0 100) 0
+  putStrLn . show $ trueOrElse (A.elderAge 2 2 0 100) 2
+  putStrLn . show $ trueOrElse (A.elderAge 4 4 0 100) 24 -- 4*1 + 4*2 + 4*3 = 24
+  putStrLn . show $ trueOrElse (A.elderAge 4 4 1 100) 12 -- 4*0 + 4*1 + 4*2 = 12
+  putStrLn . show $ trueOrElse (A.elderAge 4 4 2 100) 4 -- 4*0 + 4*0 + 4*1 =  4
+  putStrLn . show $ trueOrElse (A.elderAge 4 4 3 100) 0 -- 4*0 + 4*0 + 4*0 =  0
+  putStrLn . show $ trueOrElse (A.elderAge 4 4 4 100) 0 -- 4*0 + 4*0 + 4*0 =  0
 
-  putStrLn . show $ A.elderAge 8 5 0 100
-  putStrLn . show $ A.elderAgeNaive 8 5 0 100
+  -- mod case
+  putStrLn . show $ trueOrElse (A.elderAge 4 4 0 10) 4 -- 4
 
-  putStrLn . show $ A.elderAge 8 6 0 100
-  putStrLn . show $ A.elderAgeNaive 8 6 0 100
+  -- big mod square (test for performance)
+  putStrLn . show $ A.elderAge (2^11620) (2^11620) 0 173
 
-  putStrLn . show $ A.elderAge 8 7 0 100
-  putStrLn . show $ A.elderAgeNaive 8 7 0 100
+  -- perfect rectangle
+  putStrLn . show $ trueOrElse (A.elderAge 2 4 0 100) 12  -- 2*0 + 2*1 + 2*2 + 2*3 = 12
+  putStrLn . show $ trueOrElse (A.elderAge 2 8 0 900) 56  -- 2*0 + 2*1 + 2*2 + 2*3 = 56
+  putStrLn . show $ trueOrElse (A.elderAge 4 32 0 9999) 1984  -- 2*0 + 2*1 + 2*2 + 2*3 = 56
 
-  putStrLn . show $ A.elderAge 2 3 0 1000
-  putStrLn . show $ A.elderAgeNaive 2 3 0 1000
+  -- irregular
+  putStrLn . show $ trueOrElse (A.elderAge 2 3 0 100) 7 -- (2*0 + 2*1) + (0+1, 1+1)
 
-  putStrLn . show $ A.elderAge 12345678912 12345678912 0 1000
+  -- irregular tests
+  putStrLn . show $ trueOrElse (A.elderAge 4 3 1 100) (A.elderAgeNaive 4 3 1 100)
+  putStrLn . show $ trueOrElse (A.elderAge 4 3 0 100) (A.elderAgeNaive 4 3 0 100)
+  putStrLn . show $ trueOrElse (A.elderAge 8 5 0 100) (A.elderAgeNaive 8 5 0 100)
+  putStrLn . show $ trueOrElse (A.elderAge 8 5 1 100) (A.elderAgeNaive 8 5 1 100)
+  putStrLn . show $ trueOrElse (A.elderAge 8 6 0 100) (A.elderAgeNaive 8 6 0 100)
+  putStrLn . show $ trueOrElse (A.elderAge 9 1 0 100) (A.elderAgeNaive 9 1 0 100)
+  putStrLn . show $ trueOrElse (A.elderAge 1 9 0 100) (A.elderAgeNaive 1 9 0 100)
+
+
+  putStrLn . show $ trueOrElse (A.elderAge 5 9 0 999999999) (A.elderAgeNaive 5 9 0 999999999)
+  putStrLn . show $ trueOrElse (A.elderAge 5 45 0 999999999) (A.elderAgeNaive 5 45 0 999999999)
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 45 3 999999999) (A.elderAgeNaive 5 45 3 999999999)
+
+  putStrLn . show $ trueOrElse (A.elderAge 1 4  3 999999999) (A.elderAgeNaive 1 4 3 999999999)
+
+  -- codewars tests
+  putStrLn . show $ trueOrElse (A.elderAge 8 5 1 100) 5
+  putStrLn . show $ trueOrElse (A.elderAge 8 8 0 1000007) 224
+  putStrLn . show $ trueOrElse (A.elderAge 25 31 0 1000007) 11925
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 45 3 1000007) 4323
+  putStrLn . show $ trueOrElse (A.elderAge 31 39 7 2345) 1586
+  putStrLn . show $ trueOrElse (A.elderAge 545 435 342 1000007) 808451
+  -- putStrLn . show $ trueOrElse (A.elderAge 28827050410 35165045587 7109602 13719506) 5456283
+  putStrLn . show $ trueOrElse (A.elderAge 28827050410 35165045587 0 13719506) 5456283
