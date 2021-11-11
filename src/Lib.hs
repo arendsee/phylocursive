@@ -213,6 +213,7 @@ someFunc = do
   putStrLn . show $ trueOrElse (A.elderAge 2 3 0 100) 7 -- (2*0 + 2*1) + (0+1, 1+1)
 
   -- irregular tests
+  putStrLn "irregular tests"
   putStrLn . show $ trueOrElse (A.elderAge 4 3 1 100) (A.elderAgeNaive 4 3 1 100)
   putStrLn . show $ trueOrElse (A.elderAge 4 3 0 100) (A.elderAgeNaive 4 3 0 100)
   putStrLn . show $ trueOrElse (A.elderAge 8 5 0 100) (A.elderAgeNaive 8 5 0 100)
@@ -222,18 +223,29 @@ someFunc = do
   putStrLn . show $ trueOrElse (A.elderAge 1 9 0 100) (A.elderAgeNaive 1 9 0 100)
 
 
-  putStrLn . show $ trueOrElse (A.elderAge 5 9 0 999999999) (A.elderAgeNaive 5 9 0 999999999)
+  putStrLn "more irregular"
+  putStrLn . show $ trueOrElse (A.elderAge 5 9 0 9999) (A.elderAgeNaive 5 9 0 9999)
+  putStrLn . show $ trueOrElse (A.elderAge 5 32 0 999999999) (A.elderAgeNaive 5 32 0 999999999)
+  putStrLn . show $ trueOrElse (A.elderAge 5 13 0 999999999) (A.elderAgeNaive 5 13 0 999999999)
+  putStrLn . show $ trueOrElse (A.elderAge 5 8 0 999999999) (A.elderAgeNaive 5 8 0 999999999)
+  putStrLn "3X3"
+  putStrLn . show $ trueOrElse (A.elderAge 3 3 0 999999999) (A.elderAgeNaive 3 3 0 999999999)
+  putStrLn "5X5"
+  putStrLn . show $ trueOrElse (A.elderAge 5 5 0 999999999) (A.elderAgeNaive 5 5 0 999999999)
+  putStrLn "5X4"
+  putStrLn . show $ trueOrElse (A.elderAge 5 4 0 999999999) (A.elderAgeNaive 5 4 0 999999999)
+  putStrLn "5X1"
+  putStrLn . show $ trueOrElse (A.elderAge 5 1 0 999999999) (A.elderAgeNaive 5 1 0 999999999)
   putStrLn . show $ trueOrElse (A.elderAge 5 45 0 999999999) (A.elderAgeNaive 5 45 0 999999999)
-  -- putStrLn . show $ trueOrElse (A.elderAge 5 45 3 999999999) (A.elderAgeNaive 5 45 3 999999999)
 
   putStrLn . show $ trueOrElse (A.elderAge 1 4  3 999999999) (A.elderAgeNaive 1 4 3 999999999)
 
   -- codewars tests
+  putStrLn "codewars tests"
   putStrLn . show $ trueOrElse (A.elderAge 8 5 1 100) 5
   putStrLn . show $ trueOrElse (A.elderAge 8 8 0 1000007) 224
   putStrLn . show $ trueOrElse (A.elderAge 25 31 0 1000007) 11925
-  -- putStrLn . show $ trueOrElse (A.elderAge 5 45 3 1000007) 4323
+  putStrLn . show $ trueOrElse (A.elderAge 5 45 3 1000007) 4323
   putStrLn . show $ trueOrElse (A.elderAge 31 39 7 2345) 1586
   putStrLn . show $ trueOrElse (A.elderAge 545 435 342 1000007) 808451
-  -- putStrLn . show $ trueOrElse (A.elderAge 28827050410 35165045587 7109602 13719506) 5456283
-  putStrLn . show $ trueOrElse (A.elderAge 28827050410 35165045587 0 13719506) 5456283
+  putStrLn . show $ trueOrElse (A.elderAge 28827050410 35165045587 7109602 13719506) 5456283

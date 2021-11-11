@@ -59,15 +59,7 @@ elderAgeNaive :: Integer -> Integer -> Integer -> Integer -> Integer
 elderAgeNaive m n l t = mod (sum [max 0 (B.xor m' n' - l) | m' <- [0..m-1],  n' <- [0..n-1]]) t
 
 
--- define an operator of integer division
-infixl 7 //
-(//) = div
-
-infixl 7 %
-(%) = mod
-
 {-
-
    +--------+---+
    |        |   |   Every rectangle is divided into 4 pieces. A the largest
    |   A    | B |   square that can fit in the input rectangle. The square
@@ -159,49 +151,22 @@ elderAge m0 n0 l t = mod (f m0 n0 0) t where
   f _ 0 _ = 0
   f a b v
     | a < b = f b a v                                
-    | a == nth && b == nth = nth * sq nth  -- square with sides of length 2^n 
-    | b == nth = let k = floorLog2 (a // nth)             --   2^(n+k) a-2^(n+k)
-                     knth = 2 ^ (n + k)                   -- +--------+---+
-                 in   nth * sq knth             -- A      -- | A  .   + B | 2^n
-                    + f (a - knth) b (knth + v) -- B      -- +--------+---+
-
-    | b /= nth && a <= 2 * nth            -- A   --   nth  a-nth
-        = nth * sq nth                    -- B   -- +-----+---+       
-              + f (a - nth) nth (v + nth) -- C   -- |  A  | B | nth   
-              + f nth (b - nth) (v + nth) -- D   -- |     |   |       
-              + f (a - nth) (b - nth) v          -- +-----+---+       
-                                                 -- |  C  | D | b-nth 
-                                                 -- +-----+---+       
-
---                                         n^(n+k+1)
---    n^2   n^2                            | a - n^(n+k+1)
---  +-----+-----+------------------ ~ -----+---+
---  |  A  |  B  |                          |   |
---  |     |     |    E                     | F |
---  +-----+-----+                          |   |
---  |  C  |  D  |                          |   |
---  +-----+-----+------------------ ~ -----+---+
-
-    | otherwise =
-        let k = floorLog2 (a // (2 * nth))
-        in f (2 * nth) b v -- ABCD 
-           + foldl (+) 0 [f (2^(n+k+1-j)) b (v + 2^(n+k+1-j)) | j <- [1..k]] -- E
-           + f (a - 2 ^ (n+k+1)) b (v + 2 ^ (n+k+1)) -- F
-
+    | b <= n = b * lineSum n
+               + f b (a - n) (n + v)
+    | otherwise = n * lineSum n
+                + f (a - n) n (v + n)
+                + f n (b - n) (v + n)
+                + f (a - n) (b - n) v
     where                                  
-      n = floorLog2 b
-      nth = 2^n
+      n :: Integer
+      n = 2 ^ f a where
+        f x | x == 1 = 0
+            | x > 1 = 1 + f (x `div` 2) 
 
-      sq :: Integer -> Integer
-      sq x | v >= l  = (v-l)*x + ssum (x-1)
-           | v + x > l - 1 = ssum (x+v-l-1)
+      lineSum :: Integer -> Integer
+      lineSum x | v >= l  = (v-l)*x + seriesSum (x-1)
+           | v + x > l - 1 = seriesSum (x+v-l-1)
            | otherwise = 0
 
-      ssum :: Integer -> Integer
-      ssum x = x * (x + 1) // 2 
-
-      floorLog2 :: Integer -> Integer
-      floorLog2 x = f x where
-        f x | x <= 0 = error "Uh oh, that wasn't supposed to happen"
-            | x == 1 = 0
-            | otherwise = 1 + f (B.rotateR x 1) 
+      seriesSum :: Integer -> Integer
+      seriesSum x = x * (x + 1) `div` 2 
