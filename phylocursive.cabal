@@ -28,6 +28,7 @@ library
       Algorithms
       Expr
       FingerTree
+      ISO
       Lib
       List
       Nat
