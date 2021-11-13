@@ -1,5 +1,12 @@
 {-# LANGUAGE TypeOperators, DeriveFunctor, MultiParamTypeClasses, FlexibleInstances, FlexibleContexts, OverlappingInstances #-}
-module ALaCarte where
+module ALaCarte 
+  ( eval
+  , expr2
+  , pretty
+  ) where
+
+-- This is also from codewars. It is relevant to the recursion schemes focus of
+-- phylocursive.
 
 -- The Fix type
 data Expr f = In (f (Expr f))
@@ -11,7 +18,7 @@ data Expr f = In (f (Expr f))
 data Lit a = Lit Int
 data Add a = Add a a
 
--- Coproduct
+-- Coproduct (typelevel cons)
 data (f :+: g) e = Inl (f e) | Inr (g e)
 infixr 1 :+:
 -- ^ The TypeOperators extensions allows this craziness
@@ -47,11 +54,12 @@ instance Eval Add where
 instance (Eval f, Eval g) => Eval (f :+: g) where
   evalAlgebra (Inl l) = evalAlgebra l
   evalAlgebra (Inr r) = evalAlgebra r
-  
+
 eval :: Eval f => Expr f -> Int
 eval = foldExpr evalAlgebra
 
--- The problem is that it is painful to write expressions. 
+
+-- The problem is that it is painful to write expressions.
 -- This is how you would write 5+6
 
 pain :: Expr (Lit :+: Add)
@@ -60,7 +68,7 @@ pain = In (Inr (Add (In (Inl (Lit 5))) (In (Inl (Lit 6)))))
 -- Injection
 -- To ease writing expressions, we will now define a type class
 -- which will choose the right constructors for us. Think of the sub :<: sup to say that
--- sub is a subtype of sup. 
+-- sub is a subtype of sup.
 
 -- It might also help to think of :+: as the cons operator for a type level list.
 -- Then the type class can be viewed as searching for the correct injection by
@@ -72,16 +80,17 @@ class (Functor sub, Functor sup) => sub :<: sup where
 
 -- Reflexivity
 instance Functor f => f :<: f where
-  inj = undefined
+  inj = id
+
 
 instance (Functor f, Functor g) =>  f :<: (f :+: g) where
-  inj = undefined
+  inj = Inl
 
 instance (Functor f, Functor g, Functor h, f :<: g) => f :<: (h :+: g) where
-  inj = undefined
-  
+  inj e = Inr (inj e)
+
 -- Note: This part requires overlapping instances, this is safe as long as :+: associates to the right.
--- A modern implementation would use type families. 
+-- A modern implementation would use type families.
 
 -- Then we can use this type class to write smart constructors.
 
@@ -89,10 +98,10 @@ inject :: (g :<: f) => g (Expr f) -> Expr f
 inject = In . inj
 
 lit :: (Lit :<: f) => Int -> Expr f
-lit n = undefined
+lit = inject . Lit
 
 add :: (Add :<: f) => Expr f -> Expr f -> Expr f
-add e1 e2 = undefined
+add e1 e2 = inject (Add e1 e2)
 
 -- Then as long as we specify the type, writing expressions is easy.
 
@@ -106,42 +115,36 @@ expr = add (lit 5) (lit 6)
 
 data Mult a = Mult a a deriving Functor
 
--- instance Eval Mult where
---   ??
---
--- mult :: ??
--- mult e1 e2 = undefined
---
--- -- We must specify the type of expressions
--- expr2 :: ??
--- expr2 = mult (add (lit 5) (lit 6)) (lit 2)
---
--- -- > eval expr
--- -- 22
---
--- -- Adding a new interpreter
--- -- To add a pretty printer, we define a new type class in much the
--- -- same way as for the first interpreter.
---
--- class Functor f => Pretty f where
---   ??
---
--- pretty :: Pretty f => Expr f -> String
--- pretty = undefined
---
--- instance Pretty Lit where
---   ??
---
--- instance Pretty Add where
---   ??
---
--- instance Pretty Mult where
---   ??
---
--- instance (Pretty f, Pretty g) => Pretty (f :+: g) where
---   ??
---
--- -- > pretty expr1
--- -- "(5+6)"
--- -- > pretty expr2
--- -- "((5+6)*2)"
+instance Eval Mult where
+  evalAlgebra (Mult a b) = a * b
+
+mult :: (Mult :<: f) => Expr f -> Expr f -> Expr f
+mult e1 e2 = inject (Mult e1 e2)
+
+-- We must specify the type of expressions
+expr2 :: Expr (Add :+: Lit :+: Mult)
+expr2 = mult (add (lit 5) (lit 6)) (lit 2)
+
+
+-- Adding a new interpreter
+-- To add a pretty printer, we define a new type class in much the
+-- same way as for the first interpreter.
+
+class Functor f => Pretty f where
+  prettyAlgebra :: f String -> String
+
+instance Pretty Lit where
+  prettyAlgebra (Lit x) = show x
+
+instance Pretty Add where
+  prettyAlgebra (Add x y) = "(" ++ x ++ "+" ++ y ++ ")"
+
+instance Pretty Mult where
+  prettyAlgebra (Mult x y) = "(" ++ x ++ "*" ++ y ++ ")"
+
+instance (Pretty f, Pretty g) => Pretty (f :+: g) where
+  prettyAlgebra (Inl l) = prettyAlgebra l
+  prettyAlgebra (Inr r) = prettyAlgebra r
+
+pretty :: Pretty f => Expr f -> String
+pretty = foldExpr prettyAlgebra

@@ -16,6 +16,7 @@ import qualified Tree as T
 import qualified Tree23 as T23
 import qualified FingerTree as FT
 import qualified Algorithms as A
+import qualified ALaCarte as Ala
 
 import qualified Data.List as DL
 import Data.Text.Prettyprint.Doc
@@ -189,63 +190,66 @@ someFunc = do
   --
   -- putStrLn . show $ A.findAll 10 3
 
-  -- square cases
-  putStrLn . show $ trueOrElse (A.elderAge 1 1 0 100) 0
-  putStrLn . show $ trueOrElse (A.elderAge 2 2 0 100) 2
-  putStrLn . show $ trueOrElse (A.elderAge 4 4 0 100) 24 -- 4*1 + 4*2 + 4*3 = 24
-  putStrLn . show $ trueOrElse (A.elderAge 4 4 1 100) 12 -- 4*0 + 4*1 + 4*2 = 12
-  putStrLn . show $ trueOrElse (A.elderAge 4 4 2 100) 4 -- 4*0 + 4*0 + 4*1 =  4
-  putStrLn . show $ trueOrElse (A.elderAge 4 4 3 100) 0 -- 4*0 + 4*0 + 4*0 =  0
-  putStrLn . show $ trueOrElse (A.elderAge 4 4 4 100) 0 -- 4*0 + 4*0 + 4*0 =  0
-
-  -- mod case
-  putStrLn . show $ trueOrElse (A.elderAge 4 4 0 10) 4 -- 4
-
-  -- big mod square (test for performance)
-  putStrLn . show $ A.elderAge (2^11620) (2^11620) 0 173
-
-  -- perfect rectangle
-  putStrLn . show $ trueOrElse (A.elderAge 2 4 0 100) 12  -- 2*0 + 2*1 + 2*2 + 2*3 = 12
-  putStrLn . show $ trueOrElse (A.elderAge 2 8 0 900) 56  -- 2*0 + 2*1 + 2*2 + 2*3 = 56
-  putStrLn . show $ trueOrElse (A.elderAge 4 32 0 9999) 1984  -- 2*0 + 2*1 + 2*2 + 2*3 = 56
-
-  -- irregular
-  putStrLn . show $ trueOrElse (A.elderAge 2 3 0 100) 7 -- (2*0 + 2*1) + (0+1, 1+1)
-
-  -- irregular tests
-  putStrLn "irregular tests"
-  putStrLn . show $ trueOrElse (A.elderAge 4 3 1 100) (A.elderAgeNaive 4 3 1 100)
-  putStrLn . show $ trueOrElse (A.elderAge 4 3 0 100) (A.elderAgeNaive 4 3 0 100)
-  putStrLn . show $ trueOrElse (A.elderAge 8 5 0 100) (A.elderAgeNaive 8 5 0 100)
-  putStrLn . show $ trueOrElse (A.elderAge 8 5 1 100) (A.elderAgeNaive 8 5 1 100)
-  putStrLn . show $ trueOrElse (A.elderAge 8 6 0 100) (A.elderAgeNaive 8 6 0 100)
-  putStrLn . show $ trueOrElse (A.elderAge 9 1 0 100) (A.elderAgeNaive 9 1 0 100)
-  putStrLn . show $ trueOrElse (A.elderAge 1 9 0 100) (A.elderAgeNaive 1 9 0 100)
-
-
-  putStrLn "more irregular"
-  putStrLn . show $ trueOrElse (A.elderAge 5 9 0 9999) (A.elderAgeNaive 5 9 0 9999)
-  putStrLn . show $ trueOrElse (A.elderAge 5 32 0 999999999) (A.elderAgeNaive 5 32 0 999999999)
-  putStrLn . show $ trueOrElse (A.elderAge 5 13 0 999999999) (A.elderAgeNaive 5 13 0 999999999)
-  putStrLn . show $ trueOrElse (A.elderAge 5 8 0 999999999) (A.elderAgeNaive 5 8 0 999999999)
-  putStrLn "3X3"
-  putStrLn . show $ trueOrElse (A.elderAge 3 3 0 999999999) (A.elderAgeNaive 3 3 0 999999999)
-  putStrLn "5X5"
-  putStrLn . show $ trueOrElse (A.elderAge 5 5 0 999999999) (A.elderAgeNaive 5 5 0 999999999)
-  putStrLn "5X4"
-  putStrLn . show $ trueOrElse (A.elderAge 5 4 0 999999999) (A.elderAgeNaive 5 4 0 999999999)
-  putStrLn "5X1"
-  putStrLn . show $ trueOrElse (A.elderAge 5 1 0 999999999) (A.elderAgeNaive 5 1 0 999999999)
-  putStrLn . show $ trueOrElse (A.elderAge 5 45 0 999999999) (A.elderAgeNaive 5 45 0 999999999)
-
-  putStrLn . show $ trueOrElse (A.elderAge 1 4  3 999999999) (A.elderAgeNaive 1 4 3 999999999)
-
-  -- codewars tests
-  putStrLn "codewars tests"
-  putStrLn . show $ trueOrElse (A.elderAge 8 5 1 100) 5
-  putStrLn . show $ trueOrElse (A.elderAge 8 8 0 1000007) 224
-  putStrLn . show $ trueOrElse (A.elderAge 25 31 0 1000007) 11925
-  putStrLn . show $ trueOrElse (A.elderAge 5 45 3 1000007) 4323
-  putStrLn . show $ trueOrElse (A.elderAge 31 39 7 2345) 1586
-  putStrLn . show $ trueOrElse (A.elderAge 545 435 342 1000007) 808451
-  putStrLn . show $ trueOrElse (A.elderAge 28827050410 35165045587 7109602 13719506) 5456283
+  -- -- square cases
+  -- putStrLn . show $ trueOrElse (A.elderAge 1 1 0 100) 0
+  -- putStrLn . show $ trueOrElse (A.elderAge 2 2 0 100) 2
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 4 0 100) 24 -- 4*1 + 4*2 + 4*3 = 24
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 4 1 100) 12 -- 4*0 + 4*1 + 4*2 = 12
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 4 2 100) 4 -- 4*0 + 4*0 + 4*1 =  4
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 4 3 100) 0 -- 4*0 + 4*0 + 4*0 =  0
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 4 4 100) 0 -- 4*0 + 4*0 + 4*0 =  0
+  --
+  -- -- mod case
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 4 0 10) 4 -- 4
+  --
+  -- -- big mod square (test for performance)
+  -- putStrLn . show $ A.elderAge (2^11620) (2^11620) 0 173
+  --
+  -- -- perfect rectangle
+  -- putStrLn . show $ trueOrElse (A.elderAge 2 4 0 100) 12  -- 2*0 + 2*1 + 2*2 + 2*3 = 12
+  -- putStrLn . show $ trueOrElse (A.elderAge 2 8 0 900) 56  -- 2*0 + 2*1 + 2*2 + 2*3 = 56
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 32 0 9999) 1984  -- 2*0 + 2*1 + 2*2 + 2*3 = 56
+  --
+  -- -- irregular
+  -- putStrLn . show $ trueOrElse (A.elderAge 2 3 0 100) 7 -- (2*0 + 2*1) + (0+1, 1+1)
+  --
+  -- -- irregular tests
+  -- putStrLn "irregular tests"
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 3 1 100) (A.elderAgeNaive 4 3 1 100)
+  -- putStrLn . show $ trueOrElse (A.elderAge 4 3 0 100) (A.elderAgeNaive 4 3 0 100)
+  -- putStrLn . show $ trueOrElse (A.elderAge 8 5 0 100) (A.elderAgeNaive 8 5 0 100)
+  -- putStrLn . show $ trueOrElse (A.elderAge 8 5 1 100) (A.elderAgeNaive 8 5 1 100)
+  -- putStrLn . show $ trueOrElse (A.elderAge 8 6 0 100) (A.elderAgeNaive 8 6 0 100)
+  -- putStrLn . show $ trueOrElse (A.elderAge 9 1 0 100) (A.elderAgeNaive 9 1 0 100)
+  -- putStrLn . show $ trueOrElse (A.elderAge 1 9 0 100) (A.elderAgeNaive 1 9 0 100)
+  --
+  --
+  -- putStrLn "more irregular"
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 9 0 9999) (A.elderAgeNaive 5 9 0 9999)
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 32 0 999999999) (A.elderAgeNaive 5 32 0 999999999)
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 13 0 999999999) (A.elderAgeNaive 5 13 0 999999999)
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 8 0 999999999) (A.elderAgeNaive 5 8 0 999999999)
+  -- putStrLn "3X3"
+  -- putStrLn . show $ trueOrElse (A.elderAge 3 3 0 999999999) (A.elderAgeNaive 3 3 0 999999999)
+  -- putStrLn "5X5"
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 5 0 999999999) (A.elderAgeNaive 5 5 0 999999999)
+  -- putStrLn "5X4"
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 4 0 999999999) (A.elderAgeNaive 5 4 0 999999999)
+  -- putStrLn "5X1"
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 1 0 999999999) (A.elderAgeNaive 5 1 0 999999999)
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 45 0 999999999) (A.elderAgeNaive 5 45 0 999999999)
+  --
+  -- putStrLn . show $ trueOrElse (A.elderAge 1 4  3 999999999) (A.elderAgeNaive 1 4 3 999999999)
+  --
+  -- -- codewars tests
+  -- putStrLn "codewars tests"
+  -- putStrLn . show $ trueOrElse (A.elderAge 8 5 1 100) 5
+  -- putStrLn . show $ trueOrElse (A.elderAge 8 8 0 1000007) 224
+  -- putStrLn . show $ trueOrElse (A.elderAge 25 31 0 1000007) 11925
+  -- putStrLn . show $ trueOrElse (A.elderAge 5 45 3 1000007) 4323
+  -- putStrLn . show $ trueOrElse (A.elderAge 31 39 7 2345) 1586
+  -- putStrLn . show $ trueOrElse (A.elderAge 545 435 342 1000007) 808451
+  -- putStrLn . show $ trueOrElse (A.elderAge 28827050410 35165045587 7109602 13719506) 5456283
+  
+  putStrLn . show $ Ala.eval (Ala.expr2)
+  putStrLn . show $ Ala.pretty (Ala.expr2)
