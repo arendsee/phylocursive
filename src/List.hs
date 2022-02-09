@@ -15,6 +15,11 @@ module List
   , nth1
   , nth2
   , nth3
+  -- * recursion schemes on lists
+  , cataL
+  , filterL
+  , anaL
+  , fibs
   ) where
 
 import Schema
@@ -138,3 +143,61 @@ nth3 k (x:xs) = T.minVal $ f 0 x (T.singleton x) xs where
     | x < smallest = f size smallest ks xs
     | size == k = case T.deleteMin . T.insert x $ ks of
       (newSmallest, ks') -> f size newSmallest ks' xs
+
+
+-- Recursive schemes without fix --------------------------------------------
+-- http://haroldcarr.com/posts/2017-05-27-recursion-schemes.html
+
+{-
+cata  catamorphism  folds
+ana   anamorphism   unfolds
+hylo  hylomorphism  ana then cata
+para  paramorphism  cata with access to cursor
+apo   apomorphism   ana with early exit
+histo histomorphism cata with access to previous values
+futu  futumorphism  ana with access to future values
+zygo  zygomorphism  cata with helper function
+mutu  mutumorphism  cata with helper function?
+-}
+
+cataL :: (a -> b -> b) -> b -> [a] -> b
+cataL f x [] = x
+cataL f x (y:ys)  = f y (cataL f x ys)
+
+filterL :: (a -> Bool) -> [a] -> [a]
+filterL f = cataL alg [] where
+  alg x | f x = (:) x
+        | otherwise = id
+
+anaL :: (b -> Maybe (a, b)) -> b -> [a]
+anaL f b0 = case f b0 of
+  (Just (a, b1)) -> a : anaL f b1
+  Nothing -> []
+
+fibs :: [Integer]
+fibs = anaL coalg (0,1) where
+  coalg (a,b) = Just (a, (b, a + b))
+
+-- explicit wins - but sure, I'm probably not being fair.
+fibs' :: [Integer]
+fibs' = f 0 1 where
+  f a b = a : f b (a + b)
+
+merge :: Ord a => [a] -> [a] -> [a]
+merge xs ys = anaL coalg (xs, ys) where
+  coalg [] [] = Nothing 
+  coalg [] (y:ys) = Just (y, [], ys)
+  coalg (x:xs) [] = Just (x, ys, [])
+  coalg (x:xs, y:ys)
+    | x < y = Just (x, xs, y:ys)
+    | otherwise = Just (y, x:xs, ys)
+
+-- The explicit case looks a lot simpler than the recursion scheme case
+-- I'm not seeing the benefit
+merge' :: Ord a => [a] -> [a] -> [a]
+merge' [] [] = []
+merge' [] ys = ys
+merge' xs [] = xs
+merge' (x:xs) (y:ys)
+  | x < y = x : merge' xs (y:yes)
+  | otherwise = y : merge' (x:xs) ys

@@ -177,23 +177,25 @@ someFunc = do
   -- putStrLn . show . FT.lastMay $ FT.toTree [1,2,3,4,5,6,7]
 
 
-  putStrLn . show $ A.knight "a3" "c4"
-  putStrLn . show $ A.knight "a3" "b3"
-  putStrLn . show $ A.knight "a1" "h8"
-  putStrLn . show $ A.knight "a1" "h8"
-
-  putStrLn . show $ A.findAll 10 3
-
-  putStrLn . show $ A.elderAge 8 5 0 100
-  putStrLn . show $ A.elderAgeNaive 8 5 0 100
-
-  putStrLn . show $ A.elderAge 8 6 0 100
-  putStrLn . show $ A.elderAgeNaive 8 6 0 100
-
-  putStrLn . show $ A.elderAge 8 7 0 100
-  putStrLn . show $ A.elderAgeNaive 8 7 0 100
-
-  putStrLn . show $ A.elderAge 2 3 0 1000
-  putStrLn . show $ A.elderAgeNaive 2 3 0 1000
-
-  putStrLn . show $ A.elderAge 12345678912 12345678912 0 1000
+  -- putStrLn . show $ A.knight "a3" "c4"
+  -- putStrLn . show $ A.knight "a3" "b3"
+  -- putStrLn . show $ A.knight "a1" "h8"
+  -- putStrLn . show $ A.knight "a1" "h8"
+  --
+  -- putStrLn . show $ A.findAll 10 3
+  --
+  -- putStrLn . show $ A.elderAge 8 5 0 100
+  -- putStrLn . show $ A.elderAgeNaive 8 5 0 100
+  --
+  -- putStrLn . show $ A.elderAge 8 6 0 100
+  -- putStrLn . show $ A.elderAgeNaive 8 6 0 100
+  --
+  -- putStrLn . show $ A.elderAge 8 7 0 100
+  -- putStrLn . show $ A.elderAgeNaive 8 7 0 100
+  --
+  -- putStrLn . show $ A.elderAge 2 3 0 1000
+  -- putStrLn . show $ A.elderAgeNaive 2 3 0 1000
+  --
+  -- putStrLn . show $ A.elderAge 12345678912 12345678912 0 1000
+  
+  putStrLn . show $ take 20 L.fibs
