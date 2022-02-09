@@ -25,9 +25,11 @@ source-repository head
 
 library
   exposed-modules:
+      ALaCarte
       Algorithms
       Expr
       FingerTree
+      ISO
       Lib
       List
       Nat

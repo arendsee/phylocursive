@@ -150,24 +150,24 @@ unboundedKnapsack ::
   -> (weight, [(weight, Int)])
 unboundedKnapsack criterion weights goal = reshape $ evalState (ukp goal) Map.empty
   where
-  -- Searching largest elements first with memoization is sufficient to avoid
-  -- searching smaller denominations sum to larger denominations. That is, it
-  -- avoids the problem solved by `mask` in ukp2.
-  --
-  -- This seems to make about a 2 fold difference for the 16384 case.
-  ds = DL.reverse . DL.sort $ weights
 
+  -- given a goal i and single weight j
   chk i j
+    -- if the weight overruns the goal, then return no solution (empty list)
     | k < 0 = return (j - i, [])
+    -- if the weight equals the goals, then return the weight (we are done)
     | k == 0 = return (0, [j])
+    -- else record j and continue, reusing memoized values if available
     | otherwise = do
       (r, xs) <- mem ukp k
       return (r, j:xs)
     where
       k = i - j
 
-  ukp i = fromJust . minimumBy criterion <$> mapM (chk i) ds
+  -- select the best score for each choice of weight
+  ukp i = fromJust . minimumBy criterion <$> mapM (chk i) weights
 
+  -- organize data into (remainder, counts) tuple
   reshape (r, xs) = (r, countRuns xs)
 
 
@@ -181,12 +181,15 @@ mem f x = do
       modify (Map.insert x x')
       return x'
 
+-- count the number of times each element in a list appears
 countRuns :: (Ord a) => [a] -> [(a, Int)]
 countRuns = map (\xs@(x:_) -> (x, length xs)) . DL.group
 
+-- find the minimum value in a list using a given comparator
 minimumBy :: Ord b => (a -> b) -> [a] -> Maybe a
 minimumBy _ [] = Nothing
 minimumBy _ [x] = Just x
 minimumBy f (x:xs) = case minimumBy f xs of
   Nothing -> Just x
   (Just y) -> Just $ if f x < f y then x else y
+
